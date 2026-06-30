@@ -30,7 +30,7 @@ car-damage-detection-web/
 
 1. **Clone repository ini:**
    ```bash
-   git clone https://github.com/USERNAME_KAMU/NAMA_REPO_KAMU.git
+   git clone https://github.com/fadhli22ti/car-damage-detection-web.git
    cd car-damage-detection-web
    ```
 

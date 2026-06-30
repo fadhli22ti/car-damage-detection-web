@@ -100,4 +100,4 @@ Beberapa faktor yang diduga menjadi penyebab perbedaan performa ini:
 
 ## 👤 Muhammad Fadhli Hamdani
 
-Proyek ini dikembangkan sebagai bagian dari tugas akhir mata kuliah di **Politeknik Citra Riau**.
+Proyek ini dikembangkan sebagai bagian dari tugas akhir mata kuliah di **Politeknik Caltex Riau**.

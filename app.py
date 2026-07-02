@@ -133,6 +133,18 @@ def auto_detect(model, image_array, thresholds=(0.55, 0.45, 0.35, 0.25, 0.15, 0.
     return last_result, used_conf
 
 # =========================================================
+# HELPER: Batasi tinggi gambar agar tidak memenuhi halaman
+# =========================================================
+def cap_image_height(img, max_height=450):
+    """Resize gambar secara proporsional jika tingginya melebihi max_height."""
+    w, h = img.size
+    if h > max_height:
+        ratio = max_height / h
+        new_w = int(w * ratio)
+        img = img.resize((new_w, max_height), Image.LANCZOS)
+    return img
+
+# =========================================================
 # UPLOAD & DETEKSI
 # =========================================================
 uploaded_file = st.file_uploader(
@@ -142,11 +154,12 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None and model_loaded:
     source_image = Image.open(uploaded_file).convert("RGB")
+    display_image = cap_image_height(source_image)
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown('<div class="upload-card">', unsafe_allow_html=True)
-        st.image(source_image, caption="Foto Mobil Asli", use_column_width=True)
+        st.image(display_image, caption="Foto Mobil Asli", use_column_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     detect_clicked = st.button("🚀 Deteksi Kerusakan Sekarang")
@@ -167,7 +180,8 @@ if uploaded_file is not None and model_loaded:
 
             with col2:
                 st.markdown('<div class="result-card">', unsafe_allow_html=True)
-                st.image(annotated_img_rgb, caption="Hasil Deteksi AI", use_column_width=True)
+                annotated_pil = cap_image_height(Image.fromarray(annotated_img_rgb))
+                st.image(annotated_pil, caption="Hasil Deteksi AI", use_column_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown("---")

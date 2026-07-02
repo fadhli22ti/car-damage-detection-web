@@ -50,6 +50,12 @@ st.markdown("""
         box-shadow: 0 4px 18px rgba(0,0,0,0.06);
         border: 1px solid #f0f0f0;
     }
+    [data-testid="stImage"] img {
+        max-height: 380px;
+        object-fit: contain;
+        width: 100%;
+        border-radius: 8px;
+    }
     .damage-badge {
         display: inline-block;
         background: linear-gradient(90deg, #FF512F, #DD2476);

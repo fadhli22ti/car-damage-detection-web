@@ -44,16 +44,12 @@ st.markdown("""
         font-size: 1.05rem;
     }
     .upload-card, .result-card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 1.2rem;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-        border: 1px solid #f0f0f0;
+        border-radius: 12px;
+        padding: 0.5rem;
     }
-    [data-testid="stImage"] img {
-        max-height: 380px;
-        object-fit: contain;
-        width: 100%;
+    div[data-testid="column"] img {
+        max-height: 380px !important;
+        object-fit: contain !important;
         border-radius: 8px;
     }
     .damage-badge {
@@ -163,9 +159,7 @@ if uploaded_file is not None and model_loaded:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown('<div class="upload-card">', unsafe_allow_html=True)
-        st.image(display_image, caption="Foto Mobil Asli")
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.image(display_image, caption="Foto Mobil Asli", use_column_width=True)
 
     detect_clicked = st.button("🚀 Deteksi Kerusakan Sekarang")
 
@@ -184,10 +178,8 @@ if uploaded_file is not None and model_loaded:
             annotated_img_rgb = cv2.cvtColor(annotated_img_bgr, cv2.COLOR_BGR2RGB)
 
             with col2:
-                st.markdown('<div class="result-card">', unsafe_allow_html=True)
                 annotated_pil = resize_for_display(Image.fromarray(annotated_img_rgb))
-                st.image(annotated_pil, caption="Hasil Deteksi AI")
-                st.markdown('</div>', unsafe_allow_html=True)
+                st.image(annotated_pil, caption="Hasil Deteksi AI", use_column_width=True)
 
             st.markdown("---")
             boxes = result.boxes

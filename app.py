@@ -165,7 +165,7 @@ if uploaded_file is not None and model_loaded:
 
     if detect_clicked:
         with st.spinner("AI sedang menganalisis gambar..."):
-            input_image = np.array(source_image)
+            input_image = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGB2BGR)
 
             if manual_override and manual_conf is not None:
                 results = model.predict(source=input_image, conf=manual_conf, verbose=False)

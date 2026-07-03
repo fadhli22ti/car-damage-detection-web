@@ -4,7 +4,6 @@ from PIL import Image
 import cv2
 import numpy as np
 import torch
-from rembg import remove as remove_bg
 import io
 
 # 🛠️ SOLUSI ERROR KOTAK MERAH: Mengizinkan PyTorch membaca model YOLO
@@ -159,14 +158,12 @@ if uploaded_file is not None and model_loaded:
 
     with st.spinner("Memisahkan objek mobil dari background..."):
         try:
-            # Hapus background, hasilkan RGBA
+            from rembg import remove as remove_bg
             img_no_bg = remove_bg(source_image)
-            # Tempel di atas background putih agar YOLO bisa proses
             bg = Image.new("RGB", img_no_bg.size, (255, 255, 255))
             bg.paste(img_no_bg, mask=img_no_bg.split()[3])
             processed_image = bg
         except Exception:
-            # Fallback ke gambar asli kalau rembg gagal
             processed_image = source_image
 
     display_image = resize_for_display(processed_image)

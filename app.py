@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import io
 
-# 🛠️ SOLUSI ERROR KOTAK MERAH: Mengizinkan PyTorch membaca model YOLO
+# 🛠️ Mengizinkan PyTorch membaca model YOLO
 try:
     from ultralytics.nn.tasks import DetectionModel
     torch.serialization.add_safe_globals([DetectionModel])
@@ -23,7 +23,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS — tampilan lebih modern
+# CUSTOM CSS
 # =========================================================
 st.markdown("""
 <style>
@@ -42,15 +42,6 @@ st.markdown("""
     .main-header p {
         color: #6b7280;
         font-size: 1.05rem;
-    }
-    .upload-card, .result-card {
-        border-radius: 12px;
-        padding: 0.5rem;
-    }
-    div[data-testid="column"] img {
-        max-height: 380px !important;
-        object-fit: contain !important;
-        border-radius: 8px;
     }
     .damage-badge {
         display: inline-block;
@@ -102,7 +93,6 @@ with st.spinner("Memuat model AI..."):
         model_loaded = False
         st.error(f"❌ Gagal memuat model. Error: {e}")
 
-# Status singkat di sidebar (tanpa pengaturan teknis untuk user)
 with st.sidebar:
     st.header("ℹ️ Status Sistem")
     if model_loaded:
@@ -116,14 +106,9 @@ with st.sidebar:
         manual_conf = st.slider("Confidence manual", 0.05, 1.00, 0.25, 0.05) if manual_override else None
 
 # =========================================================
-# FUNGSI DETEKSI OTOMATIS (ADAPTIVE CONFIDENCE)
+# FUNGSI DETEKSI OTOMATIS
 # =========================================================
 def auto_detect(model, image_array, thresholds=(0.55, 0.45, 0.35, 0.25, 0.15, 0.08)):
-    """
-    Mencoba beberapa ambang confidence dari yang paling ketat ke paling longgar.
-    Berhenti begitu kerusakan pertama berhasil terdeteksi, sehingga user
-    tidak perlu mengatur sensitivitas secara manual.
-    """
     last_result = None
     used_conf = thresholds[-1]
     for conf in thresholds:
@@ -135,10 +120,9 @@ def auto_detect(model, image_array, thresholds=(0.55, 0.45, 0.35, 0.25, 0.15, 0.
     return last_result, used_conf
 
 # =========================================================
-# HELPER: Resize gambar agar tidak melebihi ukuran tampilan
+# HELPER: Resize gambar untuk tampilan
 # =========================================================
 def resize_for_display(img, max_width=480, max_height=360):
-    """Resize gambar proporsional agar muat di card tampilan."""
     w, h = img.size
     ratio = min(max_width / w, max_height / h, 1.0)
     if ratio < 1.0:
@@ -155,28 +139,17 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None and model_loaded:
     source_image = Image.open(uploaded_file).convert("RGB")
-
-    with st.spinner("Memisahkan objek mobil dari background..."):
-        try:
-            from rembg import remove as remove_bg
-            img_no_bg = remove_bg(source_image)
-            bg = Image.new("RGB", img_no_bg.size, (255, 255, 255))
-            bg.paste(img_no_bg, mask=img_no_bg.split()[3])
-            processed_image = bg
-        except Exception:
-            processed_image = source_image
-
-    display_image = resize_for_display(processed_image)
+    display_image = resize_for_display(source_image)
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(display_image, caption="Foto Mobil (Background Dihapus)", use_column_width=True)
+        st.image(display_image, caption="Foto Mobil Asli", use_column_width=True)
 
     detect_clicked = st.button("🚀 Deteksi Kerusakan Sekarang")
 
     if detect_clicked:
         with st.spinner("AI sedang menganalisis gambar..."):
-            input_image = cv2.cvtColor(np.array(processed_image), cv2.COLOR_RGB2BGR)
+            input_image = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGB2BGR)
 
             if manual_override and manual_conf is not None:
                 results = model.predict(source=input_image, conf=manual_conf, verbose=False)
@@ -187,9 +160,9 @@ if uploaded_file is not None and model_loaded:
 
             annotated_img_bgr = result.plot()
             annotated_img_rgb = cv2.cvtColor(annotated_img_bgr, cv2.COLOR_BGR2RGB)
+            annotated_pil = resize_for_display(Image.fromarray(annotated_img_rgb))
 
             with col2:
-                annotated_pil = resize_for_display(Image.fromarray(annotated_img_rgb))
                 st.image(annotated_pil, caption="Hasil Deteksi AI", use_column_width=True)
 
             st.markdown("---")
@@ -209,7 +182,6 @@ if uploaded_file is not None and model_loaded:
                     badges_html += f'<span class="damage-badge">🔴 {cls}: {count} titik</span>'
                 st.markdown(badges_html, unsafe_allow_html=True)
 
-                # Tombol unduh hasil
                 result_pil = Image.fromarray(annotated_img_rgb)
                 buf = io.BytesIO()
                 result_pil.save(buf, format="PNG")
@@ -221,8 +193,7 @@ if uploaded_file is not None and model_loaded:
                 )
             else:
                 st.warning(
-                    "ℹ️ AI tidak menemukan kerusakan yang jelas pada gambar ini, "
-                    "bahkan setelah mencoba beberapa tingkat sensitivitas secara otomatis. "
+                    "ℹ️ AI tidak menemukan kerusakan yang jelas pada gambar ini. "
                     "Coba unggah foto dengan kerusakan yang lebih terlihat jelas."
                 )
 

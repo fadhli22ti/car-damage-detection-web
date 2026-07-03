@@ -4,6 +4,7 @@ from PIL import Image
 import cv2
 import numpy as np
 import torch
+from rembg import remove as remove_bg
 import io
 
 # 🛠️ SOLUSI ERROR KOTAK MERAH: Mengizinkan PyTorch membaca model YOLO
@@ -155,17 +156,30 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None and model_loaded:
     source_image = Image.open(uploaded_file).convert("RGB")
-    display_image = resize_for_display(source_image)
+
+    with st.spinner("Memisahkan objek mobil dari background..."):
+        try:
+            # Hapus background, hasilkan RGBA
+            img_no_bg = remove_bg(source_image)
+            # Tempel di atas background putih agar YOLO bisa proses
+            bg = Image.new("RGB", img_no_bg.size, (255, 255, 255))
+            bg.paste(img_no_bg, mask=img_no_bg.split()[3])
+            processed_image = bg
+        except Exception:
+            # Fallback ke gambar asli kalau rembg gagal
+            processed_image = source_image
+
+    display_image = resize_for_display(processed_image)
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(display_image, caption="Foto Mobil Asli", use_column_width=True)
+        st.image(display_image, caption="Foto Mobil (Background Dihapus)", use_column_width=True)
 
     detect_clicked = st.button("🚀 Deteksi Kerusakan Sekarang")
 
     if detect_clicked:
         with st.spinner("AI sedang menganalisis gambar..."):
-            input_image = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGB2BGR)
+            input_image = cv2.cvtColor(np.array(processed_image), cv2.COLOR_RGB2BGR)
 
             if manual_override and manual_conf is not None:
                 results = model.predict(source=input_image, conf=manual_conf, verbose=False)

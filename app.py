@@ -143,7 +143,7 @@ if uploaded_file is not None and model_loaded:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(display_image, caption="Foto Mobil Asli", use_column_width=True)
+        st.image(display_image, caption="Foto Mobil Asli", use_container_width=True)
 
     detect_clicked = st.button("🚀 Deteksi Kerusakan Sekarang")
 
@@ -163,7 +163,7 @@ if uploaded_file is not None and model_loaded:
             annotated_pil = resize_for_display(Image.fromarray(annotated_img_rgb))
 
             with col2:
-                st.image(annotated_pil, caption="Hasil Deteksi AI", use_column_width=True)
+                st.image(annotated_pil, caption="Hasil Deteksi AI", use_container_width=True)
 
             st.markdown("---")
             boxes = result.boxes
